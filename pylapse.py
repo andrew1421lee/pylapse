@@ -5,6 +5,8 @@ import time
 RES = (1280, 720) # image resolution
 WINDOWSIZE = (854, 480) # preview resolution
 FILEPREFIX = 'capture' # file prefix
+TIMEDELAY = 60 # seconds of delay
+PREVIEWDELAY = .3 # preview delay
 
 def stream():
     # init
@@ -22,7 +24,12 @@ def stream():
     # file counter
     counter = 0
 
-    while True:
+    looping = True
+    while looping:
+        # check for exit event
+        for events in pygame.event.get():
+            if events.type == pygame.QUIT:
+                looping = False
         # current time in recording for filename
         currenttime = time.localtime()
         # current time in unix time
@@ -34,13 +41,16 @@ def stream():
         display.blit(screen, (0,0))
         pygame.display.flip()
         # if set duration has passed
-        if newtime - starttime > 60:
+        if newtime - starttime > TIMEDELAY:
             # save the image with timestamp
-            pygame.image.save(capture, FILEPREFIX + '_' + str(counter) + '_' + str(currenttime.tm_mon) + '_' + str(currenttime.tm_mday) + '_' + str(currenttime.tm_hour) + '_' + str(currenttime.tm_min) + '_' + str(currenttime.tm_sec))
+            pygame.image.save(capture, FILEPREFIX + '_' + str(counter) + '_' + str(currenttime.tm_mon) + '_' + str(currenttime.tm_mday) + '_' + str(currenttime.tm_hour) + '_' + str(currenttime.tm_min) + '_' + str(currenttime.tm_sec)) + '.tga'
             # update time
             starttime = newtime
             # increase file count
             counter = counter + 1
+        elif looping:
+            # slow down loop
+            time.sleep(PREVIEWDELAY)
 
 
 if __name__ == '__main__':
